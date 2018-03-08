@@ -1,0 +1,29 @@
+AllCops:
+  TargetRubyVersion: 2.1
+
+Style/StringLiterals:
+  EnforcedStyle: double_quotes
+Metrics/LineLength:
+  Max: 120
+Layout/AlignHash:
+  EnforcedHashRocketStyle: table
+  EnforcedColonStyle: table
+Layout/SpaceInsideHashLiteralBraces:
+  EnforcedStyle: no_space
+Style/RaiseArgs:
+  EnforcedStyle: compact
+Style/EmptyMethod:
+  EnforcedStyle: expanded
+Layout/IndentArray:
+  IndentationWidth: 4
+Layout/IndentHash:
+  IndentationWidth: 4
+Style/ConditionalAssignment:
+  EnforcedStyle: assign_inside_condition
+Layout/FirstParameterIndentation:
+  IndentationWidth: 4
+Layout/MultilineOperationIndentation:
+  IndentationWidth: 4
+  EnforcedStyle: indented
+Layout/IndentHeredoc:
+  EnforcedStyle: unindent
