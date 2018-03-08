@@ -30,7 +30,7 @@ $ bundle install
 Configure the following environment variables for the Keylime Toolbox API:
 
 - `KEYLIME_TOOLBOX_EMAIL`  The email address of your Keylime Toolbox account.
-- `KEYLIME_TOOLBOX_EMAIL`  The API token for your account. Look at the API section in 
+- `KEYLIME_TOOLBOX_TOOLBOX`  The API token for your account. Look at the API section in 
 [your settings](https://app.keylime.io/settings/profile) for details on setting this up.
 
 To access S3 set up AWS credentials. Credentials may be supplied with the following environment 
