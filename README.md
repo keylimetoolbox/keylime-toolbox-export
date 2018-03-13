@@ -2,27 +2,27 @@
 
 Export all your historical Google Search Console data from Keylime Toolbox.
 
-This script will read the Google Search Console queries and URLs (pages) data 
+This script reads the Google Search Console queries and URLs (pages) data 
 that Keylime Toolbox has collected for you, for all your GSC properties. It will
-write a CSV per day, for each property for each type of data, to an S3 bucket.
+write a CSV per day, for each property, for each type of data, to an S3 bucket.
 
 # Installation
 
 This script uses Ruby; make sure you have version 2.1 or later installed:
 
-```bash
+```
 $ ruby -v
 ruby 2.4.1p111 (2017-03-22 revision 58053) [x86_64-darwin15]
 ```
 
 [Download the code](https://github.com/keylimetoolbox/keylime-toolbox-export/archive/master.zip) 
-and extract it to a folder. In terminal window and change directory to that folder.
+and extract it to a folder. In a terminal window change directory to that folder.
 
-Before using this script you'll need to set up the dependent gems:
+Set up the dependent gems:
  
 ```bash
-$ gem install bundler
-$ bundle install
+gem install bundler
+bundle install
 ```
 
 # Configuration
@@ -52,14 +52,74 @@ an evironment variable or a command-line option (--region).
 Run the script providing the target bucket where you want the data written:
 
 ```bash
-./export-data.rb target-bucket 
+./export-data target-bucket
 ```
 
 There are additional options available to configure the bucket region, the file path, and other
 aspects. See the complete list with this command:
 
 ```bash
-./export-data.rb --help 
+./export-data --help
+```
+
+## Docker
+
+You can run this script in a Docker container. There is a `Dockerfile` in the repository
+that should work out-of-the box. Build the Docker container image like this:
+
+```bash
+docker build -t keylime-toolbox-export .
+```
+
+You must set the environment variables described above and specify the bucket when you run 
+the script, which you can do with a command like this (presuming you named the image
+`keylime-toolbox-export` as above):
+
+```bash
+docker run --env-file .env keylime-toolbox-export ./export-data target-bucket
+```
+
+See [options for setting enviroment variables](https://docs.docker.com/engine/reference/commandline/run/#set-environment-variables--e---env---env-file)
+in the Docker documentation.
+
+## Kubernetes
+
+You can run the Docker image as a Kubernetes
+[Job](https://kubernetes.io/docs/concepts/workloads/controllers/jobs-run-to-completion/)
+in your cluster. This will run the script and terminate the pod when the export job (and
+container) completes.
+
+There is a sample manifest in `keylime-toolbox-export-job.yml` that you can use as a
+starting point for launching your export job. You will need to:
+- Push the image to a registry
+- Set the environment variables described above
+- Set the target bucket
+
+Push the image to a registry with `docker push` (or other commands, depending on your
+registry, e.g. `gcloud docker -- push` for Google Container Registry). See the [documentation
+on `docker push`](https://docs.docker.com/engine/reference/commandline/push/) for details
+about the registry host, names, and tags.
+
+```bash
+docker push registry-host:5000/my-company/keylime-toolbox-export
+```
+
+Change the `image` line in the manifest based on the name (and tag if desired) you used
+when you uploaded the image to your registry.
+
+Modify the manifest to set the environment variables. You might consider using
+[Secrets](https://kubernetes.io/docs/concepts/configuration/secret/) to set the secret tokens
+and possibly a
+[ConfigMap](https://kubernetes.io/docs/tasks/configure-pod-container/configure-pod-configmap/)
+for the other values.
+
+You will need to change the `command` line in the manifest to set the target bucket and add
+any other options.
+
+Once configured you launch the job with a command like this:
+
+```bash
+kubectl -f keylime-toolbox-export-job.yml
 ```
 
 # Contributing

@@ -1,4 +1,3 @@
-#!/usr/bin/env bundle exec ruby
 # frozen_string_literal: true
 
 # A script to export Google Search Console data from Keylime Toolbox and write it to an S3 bucket.
