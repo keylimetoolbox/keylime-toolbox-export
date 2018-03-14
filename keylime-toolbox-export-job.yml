@@ -1,0 +1,45 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: keylime-toolbox-export
+spec:
+  template:
+    metadata:
+      name: keylime-toolbox-export
+      labels:
+        app: keylime-toolbox-export
+    spec:
+      containers:
+      - name: keylime-toolbox-export
+        image: us.gcr.io/keylime-toolbox-1387/keylime-toolbox-export:latest
+        # TODO: Set this to the name (and tag, if needed) that you uploaded to your registry
+        image: keylime-toolbox-export:latest
+        # TODO: Change the bucket here (and add other options, if needed)
+        command: ["./export-data",  "target-bucket"]
+        resources:
+          requests:
+            memory: 100M
+            cpu: 150m
+          limits:
+            memory: 1G
+        env:
+        # TODO: Set all of these values. You might consider Secrets for the secret keys.
+        - name: AWS_REGION
+          value:
+        - name: KEYLIME_TOOLBOX_EMAIL
+          value:
+        - name: KEYLIME_TOOLBOX_TOKEN
+          value:
+#          valueFrom:
+#            secretKeyRef:
+#              name: keylime-toolbox-auth
+#              key: KEYLIME_TOOLBOX_TOKEN
+        - name: AWS_ACCESS_KEY_ID
+          value:
+        - name: AWS_SECRET_ACCESS_KEY
+          value:
+#          valueFrom:
+#            secretKeyRef:
+#              name: aws-auth
+#              key: AWS_SECRET_ACCESS_KEY
+      restartPolicy: OnFailure

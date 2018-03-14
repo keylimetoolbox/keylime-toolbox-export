@@ -1,10 +1,9 @@
-#!/usr/bin/env bundle exec ruby
 # frozen_string_literal: true
 
 # A script to export Google Search Console data from Keylime Toolbox and write it to an S3 bucket.
 #
 # See README.md for details or run `./export-data.rb --help`.
-require "aws-sdk"
+require "aws-sdk-s3"
 require "dotenv/load"
 require "json"
 require "rest-client"
