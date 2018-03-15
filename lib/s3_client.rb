@@ -13,8 +13,9 @@ class S3Client
   end
 
   def write(key, data, url)
-    # TODO: Add Retriable context for ServiceUnavailable and other errors
-    s3.put_object(acl: "bucket-owner-full-control", bucket: @bucket, body: data, key: key)
+    Retriable.with_context(:aws_api) do
+      s3.put_object(acl: "bucket-owner-full-control", bucket: @bucket, body: data, key: key)
+    end
     logger.info("Wrote #{data.size} bytes for #{url} to s3://#{@bucket}/#{key}")
   rescue Aws::S3::Errors::PermanentRedirect
     region = @region || ENV["AWS_REGION"]

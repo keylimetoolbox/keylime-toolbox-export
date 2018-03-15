@@ -13,15 +13,19 @@ class KeylimeToolboxClient
     return @sites if @sites
     @sites = []
     groups.each do |group|
-      @sites += JSON.parse(client["/site_groups/#{group['slug']}/sites"].get(accept: :json).body)
+      Retriable.with_context(:keylime_toolbox_api) do
+        @sites += JSON.parse(client["/site_groups/#{group['slug']}/sites"].get(accept: :json).body)
+      end
     end
     @sites.uniq!
     @sites
   end
 
   def dates(site_slug)
-    JSON.parse(client["/sites/#{site_slug}/data_points"].get(accept: :json).body).map do |point|
-      point["date"]
+    Retriable.with_context(:keylime_toolbox_api) do
+      JSON.parse(client["/sites/#{site_slug}/data_points"].get(accept: :json).body).map do |point|
+        point["date"]
+      end
     end
   end
 
@@ -61,7 +65,9 @@ class KeylimeToolboxClient
   end
 
   def groups
-    @groups ||= JSON.parse(client["/site_groups"].get(accept: :json).body)
+    Retriable.with_context(:keylime_toolbox_api) do
+      @groups ||= JSON.parse(client["/site_groups"].get(accept: :json).body)
+    end
   rescue RestClient::Unauthorized
     warn "Invalid credentials for the Keylime Toolbox API. Set KEYLIME_TOOLBOX_EMAIL and KEYLIME_TOOLBOX_TOKEN " \
          "environment variables. You can find these at https://app.keylime.io/settings/profile."
@@ -69,7 +75,9 @@ class KeylimeToolboxClient
   end
 
   def search_appearances(site_slug, date)
-    JSON.parse(client["/sites/#{site_slug}/search_appearances"].get(params: {date: date.to_s}, accept: :json).body)
+    Retriable.with_context(:keylime_toolbox_api) do
+      JSON.parse(client["/sites/#{site_slug}/search_appearances"].get(params: {date: date.to_s}, accept: :json).body)
+    end
   rescue RestClient::NotFound
     []
   end
@@ -81,6 +89,8 @@ class KeylimeToolboxClient
   end
 
   def safe_get(path, params)
-    client[path].get(params: params) { |resp, _req, _result| resp }
+    Retriable.with_context(:keylime_toolbox_api) do
+      client[path].get(params: params) { |resp, _req, _result| resp }
+    end
   end
 end
