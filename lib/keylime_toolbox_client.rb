@@ -5,7 +5,9 @@ require "rest-client"
 
 # Read data from the Keylime Toolbox API.
 class KeylimeToolboxClient
-  def initialize(logger)
+  attr_reader :logger
+
+  def initialize(logger:)
     @logger = logger
   end
 
@@ -13,19 +15,15 @@ class KeylimeToolboxClient
     return @sites if @sites
     @sites = []
     groups.each do |group|
-      Retriable.with_context(:keylime_toolbox_api) do
-        @sites += JSON.parse(client["/site_groups/#{group['slug']}/sites"].get(accept: :json).body)
-      end
+      @sites += json_list("/site_groups/#{group['slug']}/sites", {}, accept: :json)
     end
     @sites.uniq!
     @sites
   end
 
   def dates(site_slug)
-    Retriable.with_context(:keylime_toolbox_api) do
-      JSON.parse(client["/sites/#{site_slug}/data_points"].get(accept: :json).body).map do |point|
-        point["date"]
-      end
+    json_list("/sites/#{site_slug}/data_points", {}, accept: :json).map do |point|
+      point["date"]
     end
   end
 
@@ -42,14 +40,7 @@ class KeylimeToolboxClient
 
   def data(path, params)
     response = safe_get(path, params)
-
-    return response.body if response.code == 200
-
-    logger.error("Got #{response.code} reading #{response.request.url}")
-    return nil
-  rescue StandardError => e
-    logger.error("Got #{e.class.name} reading #{path} #{params.inspect}")
-    return nil
+    response.body if response
   end
 
   private
@@ -65,9 +56,7 @@ class KeylimeToolboxClient
   end
 
   def groups
-    Retriable.with_context(:keylime_toolbox_api) do
-      @groups ||= JSON.parse(client["/site_groups"].get(accept: :json).body)
-    end
+    @groups ||= json_list("/site_groups", {}, accept: :json)
   rescue RestClient::Unauthorized
     warn "Invalid credentials for the Keylime Toolbox API. Set KEYLIME_TOOLBOX_EMAIL and KEYLIME_TOOLBOX_TOKEN " \
          "environment variables. You can find these at https://app.keylime.io/settings/profile."
@@ -75,9 +64,7 @@ class KeylimeToolboxClient
   end
 
   def search_appearances(site_slug, date)
-    Retriable.with_context(:keylime_toolbox_api) do
-      JSON.parse(client["/sites/#{site_slug}/search_appearances"].get(params: {date: date.to_s}, accept: :json).body)
-    end
+    json_list("/sites/#{site_slug}/search_appearances", {date: date.to_s}, accept: :json)
   rescue RestClient::NotFound
     []
   end
@@ -88,9 +75,26 @@ class KeylimeToolboxClient
     end
   end
 
-  def safe_get(path, params)
+  def json_list(path, params, options = {})
+    response = safe_get(path, params, options)
+    return [] unless response
+    JSON.parse(response.body)
+  end
+
+  def safe_get(path, params, options = {})
+    response = retry_get(path, params, options)
+    return response if response.code == 200
+
+    logger.error("Got #{response.code} reading #{response.request.url}")
+    return nil
+  rescue StandardError => e
+    logger.error("Got #{e.class.name} reading #{path} #{params.inspect}")
+    return nil
+  end
+
+  def retry_get(path, params, options = {})
     Retriable.with_context(:keylime_toolbox_api) do
-      client[path].get(params: params) { |resp, _req, _result| resp }
+      client[path].get(options.merge(params: params)) { |resp, _req, _result| resp }
     end
   end
 end
