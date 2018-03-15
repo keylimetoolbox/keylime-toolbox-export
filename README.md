@@ -127,7 +127,7 @@ kubectl -f keylime-toolbox-export-job.yml
 Bug reports and pull requests are welcome on GitHub at 
 https://github.com/keylime-toolbox/keylime-toolbox-export.
 
-Run `rubocop -Da export-data.rb lib/` before submitting to ensure that your code
+Run `rubocop -Da export_data.rb lib/` before submitting to ensure that your code
 meets style and organizational requirements.
 
 # Future

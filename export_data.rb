@@ -2,7 +2,7 @@
 
 # A script to export Google Search Console data from Keylime Toolbox and write it to an S3 bucket.
 #
-# See README.md for details or run `./export-data.rb --help`.
+# See README.md for details or run `./export_data.rb --help`.
 require "aws-sdk-s3"
 require "dotenv/load"
 require "json"
@@ -43,7 +43,7 @@ class ExportData
   end
 
   def write_s3_object(key, data, url)
-    # TODO: Add Retriable context for Service Unavailable and other errors
+    # TODO: Add Retriable context for ServiceUnavailable and other errors
     s3.put_object(acl: "bucket-owner-full-control", bucket: @options.bucket, body: data, key: key)
     log(:info, "Wrote #{data.size} bytes for #{url} to s3://#{@options.bucket}/#{key}")
   rescue Aws::S3::Errors::PermanentRedirect
