@@ -15,14 +15,14 @@ class KeylimeToolboxClient
     return @sites if @sites
     @sites = []
     groups.each do |group|
-      @sites += json_list("/site_groups/#{group['slug']}/sites", {}, accept: :json)
+      @sites += json_list("/site_groups/#{group['slug']}/sites")
     end
     @sites.uniq!
     @sites
   end
 
   def dates(site_slug)
-    json_list("/sites/#{site_slug}/data_points", {}, accept: :json).map do |point|
+    json_list("/sites/#{site_slug}/data_points").map do |point|
       point["date"]
     end
   end
@@ -56,7 +56,7 @@ class KeylimeToolboxClient
   end
 
   def groups
-    @groups ||= json_list("/site_groups", {}, accept: :json)
+    @groups ||= json_list("/site_groups")
   rescue RestClient::Unauthorized
     warn "Invalid credentials for the Keylime Toolbox API. Set KEYLIME_TOOLBOX_EMAIL and KEYLIME_TOOLBOX_TOKEN " \
          "environment variables. You can find these at https://app.keylime.io/settings/profile."
@@ -64,7 +64,7 @@ class KeylimeToolboxClient
   end
 
   def search_appearances(site_slug, date)
-    json_list("/sites/#{site_slug}/search_appearances", {date: date.to_s}, accept: :json)
+    json_list("/sites/#{site_slug}/search_appearances", date: date.to_s)
   rescue RestClient::NotFound
     []
   end
@@ -75,8 +75,8 @@ class KeylimeToolboxClient
     end
   end
 
-  def json_list(path, params, options = {})
-    response = safe_get(path, params, options)
+  def json_list(path, params = {})
+    response = safe_get(path, params, accept: :json)
     return [] unless response
     JSON.parse(response.body)
   end
