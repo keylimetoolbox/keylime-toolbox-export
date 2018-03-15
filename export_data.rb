@@ -8,7 +8,7 @@ require_relative "lib/retriable"
 require_relative "lib/s3_client"
 require_relative "lib/script_options"
 
-VERSION = 1.0
+VERSION = 1.1
 
 # Export data from Keylime Toolbox API to an S3 bucket.
 class ExportData
