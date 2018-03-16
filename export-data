@@ -1,2 +1,2 @@
 #!/bin/sh
-bundle exec ruby ./export-data.rb "$@"
+bundle exec ruby ./export_data.rb "$@"
