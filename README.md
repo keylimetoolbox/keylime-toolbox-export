@@ -30,8 +30,8 @@ bundle install
 Configure the following environment variables for the Keylime Toolbox API:
 
 - `KEYLIME_TOOLBOX_EMAIL`  The email address of your Keylime Toolbox account.
-- `KEYLIME_TOOLBOX_TOOLBOX`  The API token for your account. Look at the API section in 
-[your settings](https://app.keylime.io/settings/profile) for details on setting this up.
+- `KEYLIME_TOOLBOX_TOKEN`  The API token for your account. Look at the API section in 
+[your settings](https://app.keylime.io/settings/profile) to find or set up your token.
 
 To access S3 set up AWS credentials. Credentials may be supplied with the following environment 
 variables for by setting values in `~/.aws/credentials` or `~/.aws/config`. See 
@@ -42,14 +42,14 @@ for more details.
 - `AWS_SECRET_ACCESS_KEY`  Your secret access key for AWS.
 
 Supply the AWS region of the S3 bucket you are using. This may be done through 
-an evironment variable or a command-line option (--region). 
+an evironment variable or a command-line option (`--region`). 
 
 - `AWS_REGION`             The AWS region where the S3 bucket is.
 
 
 # Usage
 
-Run the script providing the target bucket where you want the data written:
+Run the script providing the target bucket where you want to store the data:
 
 ```bash
 ./export-data target-bucket
@@ -95,8 +95,7 @@ starting point for launching your export job. You will need to:
 - Set the environment variables described above
 - Set the target bucket
 
-Push the image to a registry with `docker push` (or other commands, depending on your
-registry, e.g. `gcloud docker -- push` for Google Container Registry). See the [documentation
+Push the image to a registry with `docker push`. See the [documentation
 on `docker push`](https://docs.docker.com/engine/reference/commandline/push/) for details
 about the registry host, names, and tags.
 
@@ -119,7 +118,7 @@ any other options.
 Once configured you launch the job with a command like this:
 
 ```bash
-kubectl -f keylime-toolbox-export-job.yml
+kubectl apply -f keylime-toolbox-export-job.yml
 ```
 
 # Contributing
